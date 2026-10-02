@@ -1,0 +1,7 @@
+title: Pankaj's notes
+description: Leadership, people, and building things.
+baseurl: /writing
+url: https://pankajads.github.io
+theme: minima
+permalink: /:year/:month/:title/
+exclude: [AGENT.md, CLAUDE.md, README.md, stories, voice, drafts, scripts, tests]

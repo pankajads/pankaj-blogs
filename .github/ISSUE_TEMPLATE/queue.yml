@@ -1,0 +1,21 @@
+name: Queue a post
+description: Add a topic or artifact to the publishing queue
+title: "<working title>"
+labels: [publish-queue]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Topic, angle, or artifact
+      description: A topic + the point you want to make, or a link to an artifact/file (or paste its content).
+    validations:
+      required: true
+  - type: input
+    id: story
+    attributes:
+      label: Story to use (optional)
+      description: id of a file in stories/ if this post should be built around one.
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes (audience, length, must-include)
