@@ -1,0 +1,9 @@
+# Subreddits the publisher is allowed to post to. Empty = Reddit posting disabled.
+# Add a sub only after reading its rules on self-promotion and noting them here;
+# the drafting agent may only target subs listed below.
+max_subreddits_per_post: 1
+min_days_between_posts_per_subreddit: 14
+subreddits: []
+#  - name: ExperiencedDevs
+#    self_promotion: "<paste the relevant sidebar rule>"
+#    format: "text post, no link in title; blog link at the end"

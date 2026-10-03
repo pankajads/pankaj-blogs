@@ -9,10 +9,10 @@ Thursday and opens it as a pull request. **Nothing is published until I merge.**
 ## How it works
 
 ```
-publish-queue issues ──┐
-                       ├─► scheduled agent (Mon + Thu) ─► draft PR ─► I edit + merge ─► GitHub Pages
-stories/ (fallback) ───┘                                         │
-                                                                 └─► Medium: "Import a story" (1 click)
+publish-queue issues ──┐                                   (cloud)                       (my machine)
+                       ├─► scheduled agent (Mon + Thu) ─► draft PR ─► I merge ─► Pages ─► publisher (Playwright)
+stories/ (fallback) ───┘     post + optional _reddit/ version                              ├─► Medium (import page)
+                                                                                           └─► Reddit (old.reddit form)
 ```
 
 1. **Queue** — open an issue with the `publish-queue` label (template: *Queue a post*).
@@ -24,9 +24,28 @@ stories/ (fallback) ───┘                                         │
    asking me for one instead of inventing anything.
 3. **Check** — `scripts/check_draft.py` runs on every draft PR: figures with no source,
    personal stories that aren't in the story bank, and common AI phrases all fail the PR.
-4. **Publish** — merge the PR. GitHub Pages deploys it. The PR description has
-   the Medium import step (medium.com/p/import → paste the post URL). Medium
-   then credits this blog as the original.
+4. **Publish** — merge the PR. GitHub Pages deploys it. Then the local publisher
+   (`scripts/publish-local.sh`, run by cron on my machine) uses a logged-in browser to:
+   - **Medium**: open medium.com/p/import, import the post URL (formatting is kept and
+     the canonical link points to this blog), add tags and publish.
+   - **Reddit**: submit the `_reddit/` text version to the approved subreddit via old.reddit.com.
+     Only subreddits in `reddit.yml` are allowed, by default 1 per post and 14 days apart.
+
+## Publisher setup (once, on my machine)
+
+```bash
+git clone https://github.com/pankajads/writing && cd writing
+python3 -m pip install -r requirements.txt && python3 -m playwright install chromium
+python3 -m publisher login medium        # log in by hand in the window, press Enter
+python3 -m publisher login reddit
+scripts/publish-local.sh --dry-run --headed   # fills the forms, stops before the final click
+# then schedule it, e.g. crontab:  17 */2 * * * /path/to/writing/scripts/publish-local.sh
+```
+
+Browser sessions, state (`state.json`, prevents double posts) and failure screenshots live in
+`~/.writing-publisher/`, never in the repo. If a site changes its UI, the run fails with a screenshot
+in `failures/`; fix the selector constant at the top of `publisher/medium.py` or `publisher/reddit.py`.
+If you get `NotLoggedIn`, run `login` again.
 
 ## Rules the agent follows
 
@@ -42,7 +61,7 @@ in the voice of the samples in [`voice/`](voice/).
 ## Local checks
 
 ```bash
-pip install pyyaml pytest
+pip install -r requirements.txt ruff && python -m playwright install chromium
 python scripts/check_draft.py _posts/*.md
-pytest -q
+ruff check . && pytest -q
 ```

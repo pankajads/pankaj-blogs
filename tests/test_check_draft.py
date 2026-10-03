@@ -53,3 +53,19 @@ def test_source_without_supports_fails(tmp_path):
     front = "title: T\ndate: 2026-10-05\norigin: x\nsources:\n  - url: https://example.com\n"
     p = write(tmp_path, front, "Fine.\n")
     assert any("supports" in e for e in check_draft.check(p))
+
+
+def test_reddit_file_must_target_allowlisted_sub(tmp_path, monkeypatch):
+    (tmp_path / "reddit.yml").write_text("max_subreddits_per_post: 1\nsubreddits:\n  - name: ExperiencedDevs\n")
+    monkeypatch.setattr(check_draft, "ROOT", tmp_path)
+    good = tmp_path / "good.md"
+    good.write_text("---\nsubmissions:\n  - subreddit: experienceddevs\n    title: T\n---\nBody\n")
+    bad = tmp_path / "bad.md"
+    bad.write_text(
+        "---\nsubmissions:\n  - subreddit: startups\n    title: T\n  - subreddit: ExperiencedDevs\n---\nBody\n"
+    )
+    assert check_draft.check_reddit(good) == []
+    errors = check_draft.check_reddit(bad)
+    assert any("not in reddit.yml" in e for e in errors)
+    assert any("max_subreddits_per_post" in e for e in errors)
+    assert any("no title" in e for e in errors)

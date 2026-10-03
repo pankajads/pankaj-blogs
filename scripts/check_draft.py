@@ -109,9 +109,7 @@ def check(path: Path) -> list[str]:
             errors.append(f"{path}: paragraph {n} has a figure/study with no source link: '{snippet}…'")
         if not story and ANECDOTE_RE.search(para):
             snippet = " ".join(para.split())[:80]
-            errors.append(
-                f"{path}: paragraph {n} reads as a personal anecdote but no 'story:' is set: '{snippet}…'"
-            )
+            errors.append(f"{path}: paragraph {n} reads as a personal anecdote but no 'story:' is set: '{snippet}…'")
 
     words = len(prose.split())
     dashes = prose.count("—")
@@ -121,8 +119,34 @@ def check(path: Path) -> list[str]:
     return errors
 
 
+def check_reddit(path: Path) -> list[str]:
+    """A _reddit/ file may only target allowlisted subreddits, within the per-post limit."""
+    try:
+        meta, body = split_front_matter(path.read_text(encoding="utf-8"))
+    except (ValueError, yaml.YAMLError) as exc:
+        return [f"{path}: {exc}"]
+    policy = yaml.safe_load((ROOT / "reddit.yml").read_text(encoding="utf-8")) or {}
+    allow = {s["name"].lower() for s in policy.get("subreddits") or []}
+    limit = int(policy.get("max_subreddits_per_post", 1))
+    subs = meta.get("submissions") or []
+    errors = [f"{path}: no submissions listed"] if not subs else []
+    if len(subs) > limit:
+        errors.append(f"{path}: {len(subs)} subreddits, max_subreddits_per_post is {limit}")
+    for sub in subs:
+        if not sub.get("title"):
+            errors.append(f"{path}: submission to r/{sub.get('subreddit')} has no title")
+        if str(sub.get("subreddit", "")).lower() not in allow:
+            errors.append(f"{path}: r/{sub.get('subreddit')} is not in reddit.yml")
+    if not body.strip():
+        errors.append(f"{path}: empty body")
+    for phrase in BANNED_PHRASES:
+        if re.search(rf"(?<!\w){re.escape(phrase)}", body.lower()):
+            errors.append(f"{path}: AI-tell phrase '{phrase}' — rewrite the sentence")
+    return errors
+
+
 def main(argv: list[str]) -> int:
-    errors = [e for arg in argv for e in check(Path(arg))]
+    errors = [e for arg in argv for e in (check_reddit if Path(arg).parent.name == "_reddit" else check)(Path(arg))]
     for e in errors:
         print(e)
     if not errors:

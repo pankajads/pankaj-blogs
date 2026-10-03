@@ -68,10 +68,29 @@ sources:
 
 If you used a story, set its `used_in:` to the post path in the same commit.
 
+## 4b. Reddit version (only if `reddit.yml` lists a subreddit that fits)
+
+Skip this step if `reddit.yml` has no subreddits, or none fit the topic. Otherwise write
+`_reddit/<same filename as the post>.md`:
+
+```yaml
+---
+submissions:
+  - subreddit: <exactly as listed in reddit.yml>
+    title: "<a question or claim that people in that sub would discuss; no clickbait>"
+---
+<a text post written for that subreddit: the core argument and the story in 150–400 words,
+ending with a question for the sub. If the sub's rule in reddit.yml allows links, add one plain line at the end:
+"Longer write-up: <canonical url>". Never a bare link drop.>
+```
+
+Re-read that sub's `self_promotion` note in `reddit.yml` and follow it. Target at most
+`max_subreddits_per_post` subreddits, and never one that isn't in the list.
+
 ## 5. Validate
 
 ```bash
-pip install -q pyyaml && python scripts/check_draft.py _posts/<file>.md
+pip install -q pyyaml && python scripts/check_draft.py _posts/<file>.md _reddit/<file>.md  # second path only if written
 ```
 
 Fix every error and re-run until it passes.
@@ -84,6 +103,6 @@ Fix every error and re-run until it passes.
   - One line on where it came from (`Closes #<n>`, or the story id).
   - **Sources checked**: each URL plus the claim it supports.
   - **What I wasn't sure about**: anything you cut or softened, and why.
-  - **After merge**: "Wait for Pages to deploy, then import into Medium:
-    https://medium.com/p/import → paste `https://pankajads.github.io/writing/<yyyy>/<mm>/<slug>/`.
-    Check the canonical link points here, add tags, publish."
+  - **Reddit**: the target subreddit and the rule from `reddit.yml` you followed, or "none".
+  - **After merge**: "The local publisher picks this up on its next run (Medium import + Reddit).
+    Post URL: `https://pankajads.github.io/writing/<yyyy>/<mm>/<slug>/`." 

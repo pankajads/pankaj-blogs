@@ -1,7 +1,7 @@
 name: check-draft
 on:
   pull_request:
-    paths: ["_posts/**", "stories/**", "scripts/**", "tests/**"]
+    paths: ["_posts/**", "_reddit/**", "stories/**", "reddit.yml", "scripts/**", "publisher/**", "tests/**"]
 permissions:
   contents: read
 jobs:
@@ -14,9 +14,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install pyyaml pytest
+      - run: pip install -r requirements.txt ruff
+      - run: python -m playwright install --with-deps chromium
+      - run: ruff check . && ruff format --check .
       - run: pytest -q
       - name: Check changed posts
         run: |
-          files=$(git diff --name-only --diff-filter=AM origin/${{ github.base_ref }}...HEAD -- '_posts/*.md')
+          files=$(git diff --name-only --diff-filter=AM origin/${{ github.base_ref }}...HEAD -- '_posts/*.md' '_reddit/*.md')
           if [ -n "$files" ]; then python scripts/check_draft.py $files; else echo "no posts changed"; fi
