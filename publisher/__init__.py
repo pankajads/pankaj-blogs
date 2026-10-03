@@ -1,5 +1,5 @@
-"""Browser publisher: pushes merged posts to Medium (via its import tool) and Reddit (old.reddit form).
+"""Medium draft importer: turns merged posts into Medium drafts and emails the author to review.
 
 Runs on the author's own machine with a persistent, manually logged-in browser profile.
-Credentials and cookies never leave that profile directory.
+Cookies never leave that profile directory. Nothing is ever published automatically.
 """

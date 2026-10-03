@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
@@ -21,13 +21,6 @@ def split_front_matter(text: str) -> tuple[dict, str]:
 
 
 @dataclass(frozen=True)
-class RedditSubmission:
-    subreddit: str
-    title: str
-    body: str
-
-
-@dataclass(frozen=True)
 class Post:
     path: Path
     title: str
@@ -35,7 +28,6 @@ class Post:
     slug: str
     tags: list[str]
     canonical_url: str
-    reddit: list[RedditSubmission] = field(default_factory=list)
 
     @property
     def key(self) -> str:
@@ -45,16 +37,6 @@ class Post:
 def site_base(root: Path = ROOT) -> str:
     cfg = yaml.safe_load((root / "_config.yml").read_text(encoding="utf-8"))
     return cfg["url"].rstrip("/") + "/" + cfg.get("baseurl", "").strip("/")
-
-
-def load_reddit(post_path: Path, root: Path) -> list[RedditSubmission]:
-    """Reddit versions live in _reddit/<post filename>, one YAML list of submissions + a shared body."""
-    path = root / "_reddit" / post_path.name
-    if not path.is_file():
-        return []
-    meta, body = split_front_matter(path.read_text(encoding="utf-8"))
-    subs = meta.get("submissions") or []
-    return [RedditSubmission(subreddit=s["subreddit"], title=s["title"], body=body.strip()) for s in subs]
 
 
 def load_post(path: Path, root: Path = ROOT) -> Post:
@@ -70,5 +52,4 @@ def load_post(path: Path, root: Path = ROOT) -> Post:
         slug=slug,
         tags=list(meta.get("tags") or [])[:5],  # Medium accepts at most 5 topics
         canonical_url=f"{site_base(root)}/{year}/{month}/{slug}/",
-        reddit=load_reddit(path, root),
     )

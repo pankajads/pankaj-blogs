@@ -1,0 +1,61 @@
+---
+layout: default
+---
+{%- assign words = content | strip_html | number_of_words -%}
+{%- assign minutes = words | divided_by: 230 | plus: 1 -%}
+{%- assign file = page.path | split: "/" | last -%}
+{%- assign kit = site.reddit | where_exp: "d", "d.relative_path contains file" | first -%}
+<div class="post-wrap">
+  <header class="post-head">
+    {%- if page.tags.size > 0 %}
+    <p class="kicker">{{ page.tags | join: " · " }}</p>
+    {%- endif %}
+    <h1 class="post-title">{{ page.title }}</h1>
+    <p class="meta">
+      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%-d %B %Y" }}</time>
+      <span aria-hidden="true">·</span> {{ minutes }} min read
+    </p>
+  </header>
+
+  {% include copybar.html %}
+
+  <article class="prose" id="article">
+    {{ content }}
+  </article>
+
+  {% include copybar.html bottom=true %}
+
+  {%- if page.sources.size > 0 %}
+  <section class="sources">
+    <h2>Sources</h2>
+    <ol>
+      {%- for s in page.sources %}
+      <li><a href="{{ s.url }}">{{ s.url | split: "/" | slice: 2 | first | remove: "www." }}</a> — {{ s.supports }}</li>
+      {%- endfor %}
+    </ol>
+  </section>
+  {%- endif %}
+
+  {%- if kit %}
+  <section class="kit" id="kit" hidden>
+    <h2>Share kit <small>visible only with <code>?kit</code></small></h2>
+    {%- for s in kit.submissions %}
+    <div class="kit-card">
+      <p class="kit-label">r/{{ s.subreddit }} · title</p>
+      <div class="kit-row">
+        <p class="kit-text" id="kit-title-{{ forloop.index }}">{{ s.title }}</p>
+        <button class="btn" data-copy-text="#kit-title-{{ forloop.index }}">Copy title</button>
+      </div>
+      <a class="kit-open" href="https://www.reddit.com/r/{{ s.subreddit }}/submit?type=TEXT" target="_blank" rel="noopener">Open r/{{ s.subreddit }} submit page ↗</a>
+    </div>
+    {%- endfor %}
+    <div class="kit-card">
+      <div class="kit-row">
+        <p class="kit-label">Post body (Markdown)</p>
+        <button class="btn" data-copy-text="#kit-body">Copy body</button>
+      </div>
+      <pre class="kit-body" id="kit-body">{{ kit.content | strip | escape }}</pre>
+    </div>
+  </section>
+  {%- endif %}
+</div>

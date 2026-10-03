@@ -45,12 +45,14 @@ but put "⚠ No voice samples — this will read generic" at the top of the PR b
 - **Write like a person, not a content mill.** One idea per post. Open with the story or the
   claim, not a preamble. Use concrete nouns. Admit what you don't know. No listicle padding.
   No closing paragraph that starts "In conclusion" or sums up the post. Aim for 900–1,500 words.
+- **Formatting**: use `##` and `###` headings, short paragraphs, and at most one pull-quote (`>`) per post.
+  Use footnotes (`[^1]`) only for asides; cite sources inline as links. Don't use HTML.
 - `scripts/check_draft.py` must pass. If it flags a phrase, rewrite the sentence; don't
   just swap in a synonym.
 
 ## 4. Write the file
 
-Path: `_posts/YYYY-MM-DD-<slug>.md`, using the date you expect it to be published (the next weekday).
+Path: `_posts/YYYY-MM-DD-<slug>.md`, using today's date (merging publishes it; the date is not a schedule).
 
 ```yaml
 ---
@@ -68,7 +70,7 @@ sources:
 
 If you used a story, set its `used_in:` to the post path in the same commit.
 
-## 4b. Reddit version (only if `reddit.yml` lists a subreddit that fits)
+## 4b. Reddit version (posted by hand; only if `reddit.yml` lists a subreddit that fits)
 
 Skip this step if `reddit.yml` has no subreddits, or none fit the topic. Otherwise write
 `_reddit/<same filename as the post>.md`:
@@ -84,7 +86,8 @@ ending with a question for the sub. If the sub's rule in reddit.yml allows links
 "Longer write-up: <canonical url>". Never a bare link drop.>
 ```
 
-Re-read that sub's `self_promotion` note in `reddit.yml` and follow it. Target at most
+Pankaj posts this by hand from the post page's share kit (`?kit`). Re-read that sub's
+`self_promotion` note in `reddit.yml` and follow it. Target at most
 `max_subreddits_per_post` subreddits, and never one that isn't in the list.
 
 ## 5. Validate
@@ -104,5 +107,5 @@ Fix every error and re-run until it passes.
   - **Sources checked**: each URL plus the claim it supports.
   - **What I wasn't sure about**: anything you cut or softened, and why.
   - **Reddit**: the target subreddit and the rule from `reddit.yml` you followed, or "none".
-  - **After merge**: "The local publisher picks this up on its next run (Medium import + Reddit).
-    Post URL: `https://pankajads.github.io/writing/<yyyy>/<mm>/<slug>/`." 
+  - **After merge**: "The local publisher imports this as a Medium **draft** and emails you.
+    Reddit kit: `https://pankajads.github.io/pankaj-blogs/<yyyy>/<mm>/<slug>/?kit`." 
